@@ -1,6 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
 import Sidebar from '../components/Sidebar';
+import Link from 'next/link';
 
 const Header: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -32,18 +33,18 @@ const Header: React.FC = () => {
           </button>
         </div>
         <div className="flex items-center gap-3">
-          <a
+          <Link
             className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 py-1.5 px-2 h-fit font-normal"
             href="/about"
           >
             Sobre
-          </a>
-          <a
+          </Link>
+          <Link
             className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 py-1.5 px-2 h-fit font-normal"
             href="/login"
           >
             Login
-          </a>
+          </Link>
         </div>
       </header>
     </>

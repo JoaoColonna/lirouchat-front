@@ -1,10 +1,8 @@
-import Head from 'next/head';
 import { useState } from 'react';
 import ChatMessages from '../components/ChatMessages';
 import ChatInput from '../components/ChatInput';
 import { Message } from "../types/index";
 import Header from '../components/Header';
-import Sidebar from '../components/Sidebar';
 
 const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([
@@ -12,13 +10,6 @@ const Chat = () => {
     { text: 'Gostaria de saber mais sobre o seu serviço.', sender: 'user' },
   ]);
   const [newMessage, setNewMessage] = useState('');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const toggleSidebar = () => {
-    console.log('toggleSidebar');
-    console.log(sidebarOpen);
-    setSidebarOpen(!sidebarOpen);
-  };
 
   const handleSendMessage = () => {
     if (newMessage.trim() !== '') {

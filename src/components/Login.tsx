@@ -1,43 +1,24 @@
-// pages/login.js
-import Head from 'next/head';
 import { useState } from 'react';
-import axios from 'axios';
 import api from '../services/api';
-import { headers } from 'next/headers';
 
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  // const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    let data = JSON.stringify({
+    const data = JSON.stringify({
       username: username,
       password: password,
     });
-    // try {
-    //   const response = await api.post('/api/auth/login', {
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //       "Accept": "application/json",
-    //     },
-    //     data
-    //   })
-    //   ;
-    //   console.log('Login successful:', response.data);
-    //   // Redirecionar ou realizar outras ações após o login bem-sucedido
-    // } catch (error) {
-    //   console.error('Login failed:', error);
-    //   setError('Login failed. Please check your credentials and try again.');
-    // }
   
     api.post('/api/auth/login', data)
     .then(response => {
       console.log('Login successful:', response.data);
     }).catch(error => {
       console.error('Login failed:', error);
-      setError('Login failed. Please check your credentials and try again.');
+      // setError('Login failed. Please check your credentials and try again.');
     });
   };
 

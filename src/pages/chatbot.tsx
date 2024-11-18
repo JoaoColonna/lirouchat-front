@@ -3,19 +3,21 @@ import ChatMessages from '../components/ChatMessages';
 import ChatInput from '../components/ChatInput';
 import { Message } from "../types/index";
 import Header from '../components/Header';
+// import withAuth from '../components/withAuth';
 
-const Chat = () => {
+const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     { text: 'Olá! Como posso te ajudar hoje?', sender: 'bot' },
     { text: 'Gostaria de saber mais sobre o seu serviço.', sender: 'user' },
   ]);
   const [newMessage, setNewMessage] = useState('');
 
-  const handleSendMessage = () => {
-    if (newMessage.trim() !== '') {
-      setMessages([...messages, { text: newMessage, sender: 'user' }]);
-      setNewMessage('');
-    }
+  const handleSendMessage = (conversaId: number, resposta: string) => {
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { text: newMessage, sender: 'user' },
+      { text: resposta, sender: 'bot' },
+    ]);
   };
 
   return (
@@ -37,4 +39,4 @@ const Chat = () => {
   );
 };
 
-export default Chat;
+export default Chat // withAuth();

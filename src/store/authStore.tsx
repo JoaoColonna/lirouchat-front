@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { NextResponse, NextRequest } from 'next/server'
-import { getCookie, getCookies } from 'cookies-next';
+// import { NextResponse, NextRequest } from 'next/server'
+// import { getCookie, getCookies } from 'cookies-next';
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/chatbot';
 
@@ -16,6 +16,8 @@ export interface AuthStore {
   fetchUser: () => Promise<void>;
 
   login: (username: string, password: string) => Promise<boolean>;
+  
+  setCsrfToken: () => Promise<string>;
 
 }
 
@@ -23,7 +25,7 @@ export interface AuthStore {
 
 export const useAuthStore = create<AuthStore, [["zustand/persist", unknown]]>(
   persist(
-    (set, get) => ({
+    (set, get: () => AuthStore) => ({
       user: null,
       isAuthenticated: false,
 
@@ -37,7 +39,7 @@ export const useAuthStore = create<AuthStore, [["zustand/persist", unknown]]>(
       },
 
       login: async (username: string, password: string) => {
-        const csrftoken = await (get() as any).setCsrfToken();
+        const csrftoken = await get().setCsrfToken();
         const response = await fetch(apiUrl + '/api/auth/login', {
           method: 'POST',
           headers: {
@@ -51,7 +53,7 @@ export const useAuthStore = create<AuthStore, [["zustand/persist", unknown]]>(
         console.log(data);
         if (data.status == "success") {
           set({ isAuthenticated: true });
-          (get() as any).fetchUser();
+          get().fetchUser();
         } else {
           set({ user: null, isAuthenticated: false });
           console.log("deu não");
@@ -61,7 +63,7 @@ export const useAuthStore = create<AuthStore, [["zustand/persist", unknown]]>(
 
       logout: async () => {
         try {
-          const csrftoken = await (get() as any).setCsrfToken();
+          const csrftoken = await get().setCsrfToken();
           const response = await fetch(apiUrl + '/api/auth/logout', {
             method: 'POST',
             headers: {
@@ -80,7 +82,7 @@ export const useAuthStore = create<AuthStore, [["zustand/persist", unknown]]>(
 
       fetchUser: async () => {
         try {
-          const csrftoken = await (get() as any).setCsrfToken();
+          const csrftoken = await get().setCsrfToken();
           const response = await fetch(apiUrl + '/api/auth/user', {
             credentials: 'include',
             headers: {

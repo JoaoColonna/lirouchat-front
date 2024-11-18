@@ -1,15 +1,15 @@
 import { useState } from 'react';
-import api from '../services/api';
+// import api from '../services/api';
 // import { useAuth } from '../contexts/AuthContext';
 // import { useRouter } from 'next/router';
-import { setCookie } from 'cookies-next';
+// import { setCookie } from 'cookies-next';
 import { useAuthStore } from '../store/authStore';
 import { redirect } from 'next/navigation';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [/*error*/, setError] = useState('');
   const login = useAuthStore(state => state.login);
   // const navigate = navigate();
 

@@ -12,10 +12,14 @@
   "dependencies": {
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.7",
+    "cookie": "^1.0.1",
+    "cookies-next": "^4.3.0",
     "js-cookie": "^3.0.5",
     "next": "14.2.14",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-router-dom": "^6.27.0",
+    "zustand": "^5.0.1"
   },
   "devDependencies": {
     "@types/js-cookie": "^3.0.6",

@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { getCSRFToken } from "../store/authStore";
 import api from "./api";
 

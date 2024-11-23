@@ -29,7 +29,7 @@ const Chat: React.FC = () => {
       const fetchConversation = async () => {
         try {
           const response = await fetchMessages(Number(conversa_id));
-          const fetchedMessages = response.conversation.map((msg: any) => ({
+          const fetchedMessages = response.conversation.map((msg: { "role": string, "parts": string}) => ({
             text: converter.makeHtml(msg.parts),
             sender: msg.role === 'user' ? 'user' : 'model',
           }));

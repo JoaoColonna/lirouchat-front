@@ -1,48 +1,41 @@
 import Link from 'next/link';
-import { useEffect } from 'react';
-import { useAuthStore, AuthStore } from '../store/authStore';
-import { redirect } from 'next/navigation'
+import Header from '../components/Header';
+import { useAuthStore } from '../store/authStore';
 
-export default function Home() {
-  const { isAuthenticated, user, logout, fetchUser } = useAuthStore() as AuthStore;
-  // const navigate = useNavigate();
+const Dashboard = () => {
+  const { isAuthenticated } = useAuthStore();
 
-  useEffect(() => {
-    void fetchUser();
-  }, [fetchUser]);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      redirect('/login');
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // return (
-  //   <div className="flex flex-col items-center justify-center min-h-screen py-2 bg-gray-100">
-  //     <h1 className="text-4xl font-bold">Home Page</h1>
-  //     <Link href="/login" className="mt-4 text-blue-500">Go to Login</Link>
-  //   </div>
-  // );
   return (
-    <div className="2">
-      <h1>Welcome to the home page</h1>
-      {isAuthenticated ? (
-        <div>
-          <p>Hi there {user?.username}!</p>
-          <p>You are logged in.</p>
-          <p>{user?.secret_fact}</p>
-          <button onClick={handleLogout}>Logout</button>
-        </div>
-      ) : (
-        <p className="flex flex-col">
-          You are not logged in.
-          <Link href="/login">Login</Link>
-          <Link href="/register">Register</Link>
-        </p>
-      )}
+    <div className="min-h-screen bg-gray-light">
+      <Header />
+      <div className="flex flex-col items-center justify-center py-10">
+        <h1 className="text-4xl font-bold mb-10">Bem vindo!</h1>
+        {isAuthenticated ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <Link href="/avaliations">
+              <div className="w-full p-6 bg-primary text-white rounded-lg shadow-lg hover:bg-primary/90 transition-colors cursor-pointer">
+                <h2 className="text-2xl font-semibold mb-4">Avaliações</h2>
+                <p className="text-lg">Veja e gerencie suas avaliações.</p>
+              </div>
+            </Link>
+            <Link href="/chatbot">
+              <div className="w-full p-6 bg-complementary text-white rounded-lg shadow-lg hover:bg-complementary/90 transition-colors cursor-pointer">
+                <h2 className="text-2xl font-semibold mb-4">Conversas</h2>
+                <p className="text-lg">Acesse suas conversas e mensagens.</p>
+              </div>
+            </Link>
+          </div>
+        ) : (
+          <Link href="/login">
+            <div className="w-full p-6 bg-analogous1 text-white rounded-lg shadow-lg hover:bg-analogous1/90 transition-colors cursor-pointer">
+              <h2 className="text-2xl font-semibold mb-4">Login</h2>
+              <p className="text-lg">Faça login para acessar suas avaliações e conversas.</p>
+            </div>
+          </Link>
+        )}
+      </div>
     </div>
   );
-}
+};
+
+export default Dashboard;

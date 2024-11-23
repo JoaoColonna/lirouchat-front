@@ -24,7 +24,7 @@ const Chat: React.FC = () => {
     console.log('conversa_id:', conversa_id);
     if (!conversa_id && !isRedirecting) {
       setIsRedirecting(true);
-      router.replace('/chatbot?conversa_id=0');
+    //   router.replace('/chatbot?conversa_id=0');
     } else if (conversa_id && Number(conversa_id) !== 0) {
       const fetchConversation = async () => {
         try {

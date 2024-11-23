@@ -1,91 +1,172 @@
 import { useState } from 'react';
-// import api from '../services/api';
-// import { useAuth } from '../contexts/AuthContext';
-// import { useRouter } from 'next/router';
-// import { setCookie } from 'cookies-next';
 import { useAuthStore } from '../store/authStore';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/router';
 
 const Login: React.FC = () => {
+  const [activeTab, setActiveTab] = useState('login');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [/*error*/, setError] = useState('');
+  const [email, setEmail] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
   const login = useAuthStore(state => state.login);
-  // const navigate = navigate();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
-    const success = await login(username, password);
-    if (success) {
-      redirect('/');
+    if (activeTab === 'login') {
+      const success = await login(username, password);
+      if (success) {
+        console.log('loguei');
+        router.push('/chatbot');
+      } else {
+        setError('Login failed. Please check your credentials.');
+      }
     } else {
-      setError('Login failed. Please check your credentials.');
+      // signup
     }
   };
-  
-  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   const data = JSON.stringify({
-  //     username: username,
-  //     password: password,
-  //   });
-    
-  //   const response = await api.post('/api/auth/login', data);
-  //   if (response.status === 200) {
-  //     setCookie('sessionid', null);
-  //     login();
-  //     router.push('/chatbot');
-  //   } else {
-  //     console.log('Login failed:', response.data);
-  //   }
-  //   // .then(response => {
-  //   //   console.log('Login successful:', response.data);
-  //   //   login();
-  //   // }).catch(error => {
-  //   //   console.error('Login failed:', error);
-  //   //   // setError('Login failed. Please check your credentials and try again.');
-  //   // });
-  // };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm">
-        <div className="mb-4">
-          <label htmlFor="username" className="block text-gray-700 text-sm font-medium mb-2">
-            Email ou Nome de Usuário
-          </label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            required
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg py-2 px-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-        <div className="mb-6">
-          <label htmlFor="password" className="block text-gray-700 text-sm font-medium mb-2">
-            Senha
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg py-2 px-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
+    <div className="flex flex-col items-center justify-center min-h-screen py-2 bg-gray-50">
+      <div className="flex space-x-4 mb-4">
         <button
-          type="submit"
-          className="w-full bg-complementary text-white py-2 px-4 rounded-lg font-semibold hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-complementary"
+          className={`py-2 px-4 rounded-t-lg ${
+            activeTab === 'login'
+              ? 'bg-complementary text-white'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
+          onClick={() => setActiveTab('login')}
         >
           Login
         </button>
-      </form>
+        <button
+          className={`py-2 px-4 rounded-t-lg ${
+            activeTab === 'signup'
+              ? 'bg-divide text-white'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
+          onClick={() => setActiveTab('signup')}
+        >
+          Cadastro
+        </button>
+      </div>
+      <div className="flex w-full max-w-4xl bg-white border border-gray-300 rounded-lg shadow-md">
+        <form
+          onSubmit={handleSubmit}
+          className={`w-full p-6 ${
+            activeTab === 'login' ? 'block' : 'hidden'
+          } transition-all`}
+        >
+          <h2 className="text-lg font-semibold mb-4">Login</h2>
+          <div className="mb-4">
+            <label htmlFor="username" className="block text-gray-700 text-sm font-medium mb-2">
+              Email ou Nome de Usuário
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              required
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg py-2 px-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-complementary"
+            />
+          </div>
+          <div className="mb-6">
+            <label htmlFor="password" className="block text-gray-700 text-sm font-medium mb-2">
+              Senha
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg py-2 px-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-complementary"
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-complementary text-white py-2 px-4 rounded-lg font-semibold hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-complementary"
+          >
+            Login
+          </button>
+        </form>
+
+        <form
+          onSubmit={handleSubmit}
+          className={`w-full p-6 ${
+            activeTab === 'signup' ? 'block' : 'hidden'
+          } transition-all`}
+        >
+          <h2 className="text-lg font-semibold mb-4">Cadastro</h2>
+          <div className="mb-4">
+            <label htmlFor="username" className="block text-gray-700 text-sm font-medium mb-2">
+              Nome de Usuário
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              required
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg py-2 px-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-complementary"
+            />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-gray-700 text-sm font-medium mb-2">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg py-2 px-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-complementary"
+            />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="password" className="block text-gray-700 text-sm font-medium mb-2">
+              Senha
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg py-2 px-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-complementary"
+            />
+          </div>
+          <div className="mb-6">
+            <label htmlFor="confirmPassword" className="block text-gray-700 text-sm font-medium mb-2">
+              Confirmar Senha
+            </label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg py-2 px-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-divide"
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-divide text-white py-2 px-4 rounded-lg font-semibold hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-divide"
+          >
+            Cadastro
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

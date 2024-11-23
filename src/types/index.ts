@@ -6,5 +6,5 @@ export interface User {
 
 export type Message = {
     text: string;
-    sender: "bot" | "user";
+    sender: "model" | "user";
   };

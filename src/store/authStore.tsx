@@ -1,10 +1,8 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-// import { NextResponse, NextRequest } from 'next/server'
-// import { getCookie, getCookies } from 'cookies-next';
+import { getCookie } from 'cookies-next';
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/chatbot';
-
 export interface AuthStore {
 
   isAuthenticated: boolean;
@@ -24,41 +22,55 @@ export interface AuthStore {
 
 
 export const useAuthStore = create<AuthStore, [["zustand/persist", unknown]]>(
+  
   persist(
     (set, get: () => AuthStore) => ({
       user: null,
       isAuthenticated: false,
 
       setCsrfToken: async () => {
-        const response = await fetch(apiUrl + '/api/auth/set-csrf-token', {
-          method: 'GET',
-          credentials: 'include'
-        });
-        const data = await response.json();
-        return data.csrftoken;
+        try {
+          const response = await fetch(apiUrl + '/api/auth/set-csrf-token', {
+            method: 'GET',
+            credentials: 'include'
+          });
+          const data = await response.json();
+          return data.csrftoken;
+        } catch (error) {
+          console.error('Failed to set CSRF token', error);
+          throw error;
+        }
       },
 
       login: async (username: string, password: string) => {
-        const csrftoken = await get().setCsrfToken();
-        const response = await fetch(apiUrl + '/api/auth/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken
-          },
-          body: JSON.stringify({ username, password }),
-          credentials: 'include'
-        });
-        const data = await response.json();
-        console.log(data);
-        if (data.status == "success") {
-          set({ isAuthenticated: true });
-          get().fetchUser();
-        } else {
+        try {
+          const csrftoken = await get().setCsrfToken();
+          const response = await fetch(apiUrl + '/api/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify({ username, password }),
+            credentials: 'include'
+          });
+          const data = await response.json();
+          console.log(data);
+          if (data.status == "success") {
+            set({ isAuthenticated: true });
+            get().fetchUser();
+            return true;
+          } else {
+            set({ user: null, isAuthenticated: false });
+            console.log("deu não");
+            return false;
+          }
+          return data.success;
+        } catch (error) {
+          console.error('Login failed', error);
           set({ user: null, isAuthenticated: false });
-          console.log("deu não");
+          return false;
         }
-        return data.success;
       },
 
       logout: async () => {
@@ -89,7 +101,6 @@ export const useAuthStore = create<AuthStore, [["zustand/persist", unknown]]>(
               'Content-Type': 'application/json',
               'X-CSRFToken': csrftoken
             },
-            
           });
           if (response.ok) {
             const data = await response.json();
@@ -110,25 +121,12 @@ export const useAuthStore = create<AuthStore, [["zustand/persist", unknown]]>(
   )
 );
 
+
+
 export const getCSRFToken = () => {
-  /*
-  We get the csrftoken from the cookeis in the user's browser.
-  You can use an package here if you want nicer code, or just use the code below.
-  */
-  const name = 'csrftoken';
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === (name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
+  const cookieValue = getCookie('csrftoken');
+  if (!cookieValue) {
+    console.log('Missing CSRF cookie.');
   }
-  if (cookieValue === null) {
-    throw new Error('Missing CSRF cookie.');
-  }
-  return cookieValue;
+  return cookieValue as string;
 };

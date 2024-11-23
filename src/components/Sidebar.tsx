@@ -1,23 +1,49 @@
+// src/components/Sidebar.tsx
 import React from 'react';
+import { FaUser, FaCog } from 'react-icons/fa';
+import { AuthStore, useAuthStore } from '../store/authStore';
 
 interface SidebarProps {
-  sidebarOpen: boolean;
-  toggleSidebar: () => void;
+  conversations: { id: number; titulo: string; criada_em: string }[];
+  onSelectConversation: (id: number) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, toggleSidebar }) => {
+const Sidebar: React.FC<SidebarProps> = ({ conversations = [], onSelectConversation }) => {
+  const { user } = useAuthStore() as AuthStore;
+
   return (
-    <div className={`fixed inset-y-0 left-0 w-64 bg-white shadow-lg transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out`}>
-      <div className="flex flex-col h-full p-4 pt-12">
-        <div className="flex flex-row gap-2">
-          <div className="dark:text-gray-100">History</div>
-          <div className="dark:text-gray-300">0 chats</div>
-          <button 
-            type="button" 
-            className="fixed right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary"
-            onClick={toggleSidebar}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-x h-4 w-4"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
-            <span className="sr-only">Close</span>
+    <div className="w-64 bg-white shadow-lg h-full flex flex-col">
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex flex-col h-full">
+          <div className="flex flex-row gap-2 mb-4">
+            <div className="dark:text-gray-300">{conversations.length} chats</div>
+          </div>
+          <ul className="space-y-2">
+            {conversations.map((conversation) => (
+              <li key={conversation.id}>
+                <button
+                  className="w-full text-left p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+                  onClick={() => onSelectConversation(conversation.id)}
+                >
+                  <div className="font-semibold text-gray-800">{conversation.titulo}</div>
+                  <div className="text-sm text-gray-600">{new Date(conversation.criada_em).toLocaleString()}</div>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+      <div className="p-4 border-t border-gray-200">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <FaUser className="text-gray-600" />
+            <span className="ml-2 font-semibold text-gray-800">{user?.username}</span>
+          </div>
+          <button
+            className="text-gray-600 hover:text-gray-800 transition-colors"
+            onClick={() => window.location.href = '/settings'}
+          >
+            <FaCog />
           </button>
         </div>
       </div>

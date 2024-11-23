@@ -1,8 +1,10 @@
+// src/components/ChatMessages.tsx
 import React from 'react';
+import ChatMessage from './ChatMessage';
 
 interface Message {
   text: string;
-  sender: 'bot' | 'user';
+  sender: 'model' | 'user';
 }
 
 interface ChatMessagesProps {
@@ -11,21 +13,13 @@ interface ChatMessagesProps {
 
 const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
   return (
-    <div
-      id="chat-box"
-      className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 rounded-lg h-full pt-16"
-    >
+    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 rounded-lg h-full">
       {messages.map((message, index) => (
-        <div
+        <ChatMessage
           key={index}
-          className={`p-4 rounded-lg max-w-lg ${
-            message.sender === 'bot'
-              ? 'bg-blue-100 self-start'
-              : 'bg-gray-300 self-end'
-          }`}
-        >
-          <p>{message.text}</p>
-        </div>
+          content={message.text}
+          sender={message.sender}
+        />
       ))}
     </div>
   );

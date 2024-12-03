@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useRouter } from 'next/router';
+import { createUser } from '../services/userService';
 
 const Login: React.FC = () => {
   const [activeTab, setActiveTab] = useState('login');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [age, setAge] = useState('');
   const [, setError] = useState('');
   const login = useAuthStore(state => state.login);
   const router = useRouter();
@@ -24,7 +25,19 @@ const Login: React.FC = () => {
         setError('Login failed. Please check your credentials.');
       }
     } else {
-      // signup
+      const success = await createUser(username, password, email, parseInt(age));
+      if (success) {
+        console.log('cadastrado');
+        const success = await login(username, password);
+        if (success) {
+          console.log('loguei');
+          router.push('/chatbot');
+        } else {
+          setError('Login failed. Please check your credentials.');
+        }
+      } else {
+        setError('Signup failed. Please try again.');
+      }
     }
   };
 
@@ -92,7 +105,7 @@ const Login: React.FC = () => {
             type="submit"
             className="w-full bg-complementary text-white py-2 px-4 rounded-lg font-semibold hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-complementary"
           >
-            Login
+            Entrar
           </button>
         </form>
 
@@ -146,24 +159,24 @@ const Login: React.FC = () => {
             />
           </div>
           <div className="mb-6">
-            <label htmlFor="confirmPassword" className="block text-gray-700 text-sm font-medium mb-2">
-              Confirmar Senha
+            <label htmlFor="age" className="block text-gray-700 text-sm font-medium mb-2">
+              Idade
             </label>
             <input
               type="password"
-              id="confirmPassword"
-              name="confirmPassword"
+              id="age"
+              name="age"
               required
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              value={age}
+              onChange={(e) => setAge(e.target.value)}
               className="w-full border border-gray-300 rounded-lg py-2 px-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-divide"
-            />
+            />  
           </div>
           <button
             type="submit"
             className="w-full bg-divide text-white py-2 px-4 rounded-lg font-semibold hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-divide"
           >
-            Cadastro
+            Cadastrar
           </button>
         </form>
       </div>

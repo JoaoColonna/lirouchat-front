@@ -2,6 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+/* src/styles/globals.css */
+
+li {
+  @apply divide-y divide-gray-200 pr-3;
+}
+
+table {
+  @apply min-w-full divide-y divide-gray-100 rounded-lg;
+}
+
+thead {
+  @apply bg-gray-50;
+}
+
+th {
+  @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-title;
+}
+
+tbody {
+  @apply bg-white divide-y divide-gray-100;
+}
+
+td {
+  @apply px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-body;
+}
+
+td:first-child {
+  @apply font-medium text-gray-900 font-subtitle;
+}
+
+
+
 .sidebar-open {
   width: 20%;
   height: 100%;

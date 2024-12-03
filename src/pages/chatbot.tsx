@@ -1,14 +1,18 @@
-// src/pages/chatbot.tsx
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import {remark} from 'remark'
+import rehypeStringify from 'rehype-stringify'
+import remarkGfm from 'remark-gfm'
+import remarkParse from 'remark-parse'
+import remarkRehype from 'remark-rehype'
+import html from 'remark-html';
 import Header from '../components/Header';
+import Sidebar from '../components/Sidebar';
 import ChatMessages from '../components/ChatMessages';
 import ChatInput from '../components/ChatInput';
-import Sidebar from '../components/Sidebar';
-import { Message } from "../types/index";
-import withAuth from '../components/withAuth';
 import { fetchMessages, fetchConversations } from '../services/chatService';
-import showdown from 'showdown';
+import { Message } from '../types/index';
+import withAuth from '../components/withAuth';
 
 const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -18,10 +22,8 @@ const Chat: React.FC = () => {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const router = useRouter();
   const { conversa_id } = router.query;
-  const converter = new showdown.Converter();
 
   useEffect(() => {
-    console.log('conversa_id:', conversa_id);
     if (!conversa_id && !isRedirecting) {
       setIsRedirecting(true);
       router.replace('/chatbot?conversa_id=0');
@@ -29,10 +31,15 @@ const Chat: React.FC = () => {
       const fetchConversation = async () => {
         try {
           const response = await fetchMessages(Number(conversa_id));
-          const fetchedMessages = response.conversation.map((msg: { "role": string, "parts": string}) => ({
-            text: converter.makeHtml(msg.parts),
-            sender: msg.role === 'user' ? 'user' : 'model',
-          }));
+          const fetchedMessages = await Promise.all(
+            response.conversation.map(async (msg: { role: string; parts: string }) => {
+                const processedContent = await remark().use(remarkGfm).use(remarkParse).use(html).process(msg.parts);
+              return {
+                text: processedContent.toString(),
+                sender: msg.role === 'user' ? 'user' : 'model',
+              };
+            })
+          );
           setMessages(fetchedMessages);
           setConversaId(Number(conversa_id));
         } catch (error) {
@@ -43,7 +50,7 @@ const Chat: React.FC = () => {
     } else {
       setConversaId(0);
     }
-  }, [conversa_id, isRedirecting]);
+  }, [conversa_id, isRedirecting, router]);
 
   useEffect(() => {
     const fetchAllConversations = async () => {
@@ -57,10 +64,11 @@ const Chat: React.FC = () => {
     fetchAllConversations();
   }, []);
 
-  const handleSendMessage = (conversaId: number, message: string, sender: 'model' | 'user') => {
+  const handleSendMessage = async (conversaId: number, message: string, sender: 'model' | 'user') => {
+    const processedContent = await remark().use(remarkGfm).use(remarkParse).use(html).process(message);
     setMessages((prevMessages) => [
       ...prevMessages,
-      { text: message, sender: sender },
+      { text: processedContent.toString(), sender: sender },
     ]);
   };
 

@@ -35,9 +35,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ newMessage, setNewMessage, handle
         setConversaId(response.data.conversa_id);
       }
       // Converte a resposta do bot de Markdown para HTML
-      const htmlResponse = converter.makeHtml(response.data.resposta);
       // Adiciona a resposta do bot quando ela chegar
-      handleSendMessage(response.data.conversa_id, htmlResponse, 'model');
+      handleSendMessage(response.data.conversa_id, response.data.resposta, 'model');
     } catch (error) {
       console.error('Failed to send message:', error);
     } finally {

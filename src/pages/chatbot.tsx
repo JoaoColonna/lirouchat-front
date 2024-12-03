@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import {remark} from 'remark'
-import rehypeStringify from 'rehype-stringify'
 import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
-import remarkRehype from 'remark-rehype'
 import html from 'remark-html';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';

@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useAuthStore } from '../store/authStore';
 import { useRouter } from 'next/router';
+import VLibras from 'vlibras-nextjs';
 
 const Header: React.FC = () => {
   const { isAuthenticated, logout } = useAuthStore();
@@ -14,6 +15,7 @@ const Header: React.FC = () => {
 
   return (
     <>
+      <VLibras forceOnload />
       <header className="static bg-background top-0 left-0 w-full py-2 px-3 flex justify-between items-center z-30">
         <div className="flex items-center gap-3">
           <div className="text-sm text-gray-200">LirouChat</div>

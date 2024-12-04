@@ -1,15 +1,18 @@
-
 import { useState, useEffect } from 'react';
-import { sendMessage } from '../services/chatService';
 
 interface ChatInputProps {
-  newMessage: string;
-  setNewMessage: (message: string) => void;
-  handleSendMessage: (conversaId: number, message: string, sender: 'model' | 'user') => void;
-  conversaId: number | null;
-}
 
-const ChatInput: React.FC<ChatInputProps> = ({ newMessage, setNewMessage, handleSendMessage, conversaId: initialConversaId }) => {
+    newMessage: string;
+  
+    setNewMessage: (message: string) => void;
+  
+    handleSendMessage: (conversaId: number, message: string, sender: 'model' | 'user') => Promise<void>;
+  
+    conversaId: number | null;
+  
+  }
+
+const ChatInputTest: React.FC<ChatInputProps> = ({ newMessage, setNewMessage, handleSendMessage, conversaId: initialConversaId }) => {
   const [conversaId, setConversaId] = useState<number>(initialConversaId ?? 0);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -22,23 +25,14 @@ const ChatInput: React.FC<ChatInputProps> = ({ newMessage, setNewMessage, handle
   const sendMessageHandler = async () => {
     if (newMessage.trim() === '') return;
 
-    // Adiciona a mensagem do usuário imediatamente
-    handleSendMessage(conversaId, newMessage, 'user');
-    setNewMessage('');
     setIsLoading(true);
-
     try {
-      const response = await sendMessage(conversaId, newMessage);
-      if (conversaId === 0) {
-        setConversaId(response.data.conversa_id);
-      }
-      // Converte a resposta do bot de Markdown para HTML
-      // Adiciona a resposta do bot quando ela chegar
-      handleSendMessage(response.data.conversa_id, response.data.resposta, 'model');
+      await handleSendMessage(conversaId, newMessage, 'user');
     } catch (error) {
       console.error('Failed to send message:', error);
     } finally {
       setIsLoading(false);
+      setNewMessage('');
     }
   };
 
@@ -65,4 +59,4 @@ const ChatInput: React.FC<ChatInputProps> = ({ newMessage, setNewMessage, handle
   );
 };
 
-export default ChatInput;
+export default ChatInputTest;

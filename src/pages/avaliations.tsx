@@ -1,14 +1,18 @@
-// src/pages/chatbot.tsx
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import rehypeStringify from 'rehype-stringify';
+import remarkGfm from 'remark-gfm';
+import remarkParse from 'remark-parse';
+import remarkRehype from 'remark-rehype';
+import { unified } from 'unified';
+
 import Header from '../components/Header';
-import ChatMessages from '../components/ChatMessages';
-import ChatInput from '../components/ChatInput';
 import Sidebar from '../components/Sidebar';
-import { Message } from "../types/index";
+import ChatMessages from '../components/ChatMessages';
+import ChatInputTest from '../components/ChatInputTest';
+import { fetchMessages, fetchTestsConversations, createTest, answerTest } from '../services/chatService';
+import { Message } from '../types/index';
 import withAuth from '../components/withAuth';
-import { fetchMessages, fetchConversations } from '../services/chatService';
-import showdown from 'showdown';
 
 const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -18,21 +22,42 @@ const Chat: React.FC = () => {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const router = useRouter();
   const { conversa_id } = router.query;
-  const converter = new showdown.Converter();
 
   useEffect(() => {
-    console.log('conversa_id:', conversa_id);
     if (!conversa_id && !isRedirecting) {
       setIsRedirecting(true);
-    //   router.replace('/chatbot?conversa_id=0');
+      router.replace('/avaliations?conversa_id=0');
+
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          text: `
+            <p>Bem-vindo! Para iniciar uma avaliação, siga as instruções:</p>
+            <p>Por favor, escreva o assunto sobre o qual você gostaria que eu criasse uma avaliação. Por exemplo: Português básico, História da França, etc.</p>
+            <p>Quanto mais específico, melhor, pois sou treinado para criar perguntas aleatórias sobre os temas! Vamos começar?</p>
+            <p><strong>Qual será o assunto?</strong></p>
+          `,
+          sender: 'model',
+        },
+      ]);
     } else if (conversa_id && Number(conversa_id) !== 0) {
       const fetchConversation = async () => {
         try {
           const response = await fetchMessages(Number(conversa_id));
-          const fetchedMessages = response.conversation.map((msg: { "role": string, "parts": string}) => ({
-            text: converter.makeHtml(msg.parts),
-            sender: msg.role === 'user' ? 'user' : 'model',
-          }));
+          const fetchedMessages = await Promise.all(
+            response.conversation.map(async (msg: { role: string; parts: string }) => {
+              const processedContent = await unified()
+                .use(remarkParse)
+                .use(remarkGfm)
+                .use(remarkRehype)
+                .use(rehypeStringify)
+                .process(msg.parts);
+              return {
+                text: processedContent.toString(),
+                sender: msg.role === 'user' ? 'user' : 'model',
+              };
+            })
+          );
           setMessages(fetchedMessages);
           setConversaId(Number(conversa_id));
         } catch (error) {
@@ -43,12 +68,12 @@ const Chat: React.FC = () => {
     } else {
       setConversaId(0);
     }
-  }, [conversa_id, isRedirecting]);
+  }, [conversa_id, isRedirecting, router]);
 
   useEffect(() => {
     const fetchAllConversations = async () => {
       try {
-        const response = await fetchConversations();
+        const response = await fetchTestsConversations();
         setConversations(response.conversas);
       } catch (error) {
         console.error('Failed to fetch conversations:', error);
@@ -57,11 +82,46 @@ const Chat: React.FC = () => {
     fetchAllConversations();
   }, []);
 
-  const handleSendMessage = (conversaId: number, message: string, sender: 'model' | 'user') => {
+
+  const handleSendMessage = async (conversaId: number, message: string, sender: 'model' | 'user') => {
+    const processedContent = await unified()
+      .use(remarkParse)
+      .use(remarkGfm)
+      .use(remarkRehype)
+      .use(rehypeStringify)
+      .process(message);
+
     setMessages((prevMessages) => [
       ...prevMessages,
-      { text: message, sender: sender },
+      { text: processedContent.toString(), sender: sender },
     ]);
+
+    try {
+      let response;
+      if (conversaId === 0) {
+        response = await createTest(message);
+        if (response) {
+          setConversaId(response.conversa_id);
+          router.push(`/avaliations?conversa_id=${response.conversa_id}`);
+        }
+      } else {
+        response = await answerTest(conversaId, message);
+        if (response) {
+          const processedResponse = await unified()
+            .use(remarkParse)
+            .use(remarkGfm)
+            .use(remarkRehype)
+            .use(rehypeStringify)
+            .process(response.resposta);
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { text: processedResponse.toString(), sender: 'model' },
+          ]);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    }
   };
 
   return (
@@ -71,11 +131,11 @@ const Chat: React.FC = () => {
         <div className="flex flex-1 overflow-hidden">
           <Sidebar
             conversations={conversations}
-            onSelectConversation={(id: number) => router.push(`/chatbot?conversa_id=${id}`)}
+            onSelectConversation={(id: number) => router.push(`/avaliations?conversa_id=${id}`)}
           />
           <div className="flex flex-col flex-1">
             <ChatMessages messages={messages} />
-            <ChatInput
+            <ChatInputTest
               newMessage={newMessage}
               setNewMessage={setNewMessage}
               handleSendMessage={handleSendMessage}

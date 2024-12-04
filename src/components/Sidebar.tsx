@@ -17,9 +17,17 @@ const Sidebar: React.FC<SidebarProps> = ({ conversations = [], onSelectConversat
         <div className="flex flex-col h-full">
             <button
             className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
-            onClick={() => window.location.href = '/chatbot'}
+            onClick={() => {
+              const currentPath = window.location.pathname;
+              if (currentPath === '/chatbot') {
+              window.location.href = currentPath;
+              } else if (currentPath === '/avaliations') {
+              window.location.href = currentPath;
+              }
+               
+            }}
             >
-            Iniciar nova conversa
+            Novo chat
             </button>
             <div className="flex flex-row justify-center gap-2 mt-2 mb-4">
             <div className="dark:text-gray-300">{conversations.length} chats</div>

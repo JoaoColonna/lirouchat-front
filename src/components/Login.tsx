@@ -75,7 +75,7 @@ const Login: React.FC = () => {
           <h2 className="text-lg font-semibold mb-4">Login</h2>
           <div className="mb-4">
             <label htmlFor="username" className="block text-gray-700 text-sm font-medium mb-2">
-              Email ou Nome de Usuário
+              Nome de Usuário
             </label>
             <input
               type="text"

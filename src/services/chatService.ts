@@ -70,3 +70,71 @@ export const fetchConversations = async () => {
         throw error;
     }
 };
+
+export const fetchTestsConversations = async () => {
+    try {
+        const response = await fetch(`${apiUrl}/api/test/tests`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken(),
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch tests conversation');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Failed to fetch tests conversation:', error);
+        throw error;
+    }
+}
+
+export const createTest = async (tipo: string) => {
+    try {
+        const response = await fetch(`${apiUrl}/api/test/create-test`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken(),
+            },
+            body: JSON.stringify({ tipo }),
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to create test');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Failed to create test:', error);
+        throw error;
+    }
+};
+
+export const answerTest = async (conversaId: number, resposta: string) => {
+    try {
+        const response = await fetch(`${apiUrl}/api/test/answer-test`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken(),
+            },
+            body: JSON.stringify({ conversa_id: conversaId, resposta }),
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to answer test');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Failed to answer test:', error);
+        throw error;
+    }
+};

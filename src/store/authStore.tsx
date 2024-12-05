@@ -7,7 +7,7 @@ export interface AuthStore {
 
   isAuthenticated: boolean;
 
-  user: { username: string; secret_fact: string } | null;
+  user: { username: string; secret_fact: string; email: string; age: string } | null;
 
   logout: () => Promise<void>;
 

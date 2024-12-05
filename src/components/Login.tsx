@@ -163,13 +163,16 @@ const Login: React.FC = () => {
               Idade
             </label>
             <input
-              type="password"
+              type="number"
               id="age"
               name="age"
               required
               value={age}
               onChange={(e) => setAge(e.target.value)}
               className="w-full border border-gray-300 rounded-lg py-2 px-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-divide"
+              min={7}
+              max={99}
+              maxLength={2}
             />  
           </div>
           <button

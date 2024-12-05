@@ -5,7 +5,6 @@ const useAuth = () => {
 
     useEffect(() => {
         setIsAuthenticated(true);
-        // Lógica de autenticação
     }, []);
 
     return isAuthenticated;

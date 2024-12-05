@@ -1,7 +1,8 @@
 // src/components/Sidebar.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { FaUser, FaCog } from 'react-icons/fa';
 import { AuthStore, useAuthStore } from '../store/authStore';
+import UserSettingsModal from './UserSettingsModal';
 
 interface SidebarProps {
   conversations: { id: number; titulo: string; criada_em: string }[];
@@ -10,6 +11,16 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ conversations = [], onSelectConversation }) => {
   const { user } = useAuthStore() as AuthStore;
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleSettingsClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
   return (
     <div className="w-64 bg-white shadow-lg h-full flex flex-col">
@@ -55,12 +66,13 @@ const Sidebar: React.FC<SidebarProps> = ({ conversations = [], onSelectConversat
           </div>
           <button
             className="text-gray-600 hover:text-gray-800 transition-colors"
-            onClick={() => window.location.href = '/settings'}
+            onClick={handleSettingsClick}
           >
             <FaCog />
           </button>
         </div>
       </div>
+      <UserSettingsModal isOpen={isModalOpen} onClose={handleCloseModal} />
     </div>
   );
 };

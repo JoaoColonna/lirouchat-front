@@ -44,14 +44,20 @@ const ChatInput: React.FC<ChatInputProps> = ({ newMessage, setNewMessage, handle
 
   return (
     <div className="flex p-4 border-t border-l border-gray-100 bg-white">
-      <input
+      <textarea
         id="message-input"
-        type="text"
         placeholder="Escreva sua mensagem..."
-        className="flex-1 p-2 border border-gray-100 rounded-lg focus:outline-none focus:border-blue-500"
+        className="flex-1 p-2 border border-gray-100 rounded-lg focus:outline-none focus:border-blue-500 resize-none"
         value={newMessage}
         onChange={(e) => setNewMessage(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessageHandler();
+          }
+        }}
         disabled={isLoading}
+        rows={1}
       />
       <button
         id="send-button"

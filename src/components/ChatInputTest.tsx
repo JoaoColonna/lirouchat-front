@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FaMicrophone } from 'react-icons/fa';
+import { sendMessage } from '../services/chatService';
 
 interface ChatInputProps {
     newMessage: string;
@@ -49,10 +50,21 @@ const ChatInputTest: React.FC<ChatInputProps> = ({ newMessage, setNewMessage, ha
       setIsRecording(true);
     };
 
-    recognition.onresult = (event: SpeechRecognitionEvent ) => {
+    recognition.onresult = async (event: SpeechRecognitionEvent) => {
       const transcript = event.results[0][0].transcript;
-      setNewMessage(transcript);
-      sendMessageHandler();
+      
+      handleSendMessage(conversaId, transcript, 'user');
+      try {
+        const response = await sendMessage(conversaId, transcript);
+        if (conversaId === 0) {
+          setConversaId(response.data.conversa_id);
+        }
+        // handleSendMessage(response.data.conversa_id, response.data.resposta, 'model');
+      } catch (error) {
+        console.error('Failed to send message:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {

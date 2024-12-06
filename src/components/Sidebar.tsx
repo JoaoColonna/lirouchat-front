@@ -4,7 +4,6 @@ import { AuthStore, useAuthStore } from '../store/authStore';
 import { fetchMessages } from '../services/chatService';
 import UserSettingsModal from './UserSettingsModal';
 import { jsPDF } from 'jspdf';
-import MarkdownPDF from 'markdown-pdf';
 
 interface SidebarProps {
   conversations: { id: number; titulo: string; criada_em: string }[];
@@ -33,7 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({ conversations = [], onSelectConversat
       const pageHeight = doc.internal.pageSize.height;
       let y = 20;
 
-      response.conversation.forEach((msg: { role: string; parts: string }, index: number) => {
+      response.conversation.forEach((msg: { role: string; parts: string }) => {
         const sender = msg.role === 'user' ? user?.username : 'Lirouchat';
         const text = `${sender}: ${msg.parts}`;
         const lines = doc.splitTextToSize(text, 180);

@@ -2,15 +2,10 @@ import { useState, useEffect } from 'react';
 import { FaMicrophone } from 'react-icons/fa';
 
 interface ChatInputProps {
-
     newMessage: string;
-  
     setNewMessage: (message: string) => void;
-  
     handleSendMessage: (conversaId: number, message: string, sender: 'model' | 'user') => Promise<void>;
-  
     conversaId: number | null;
-  
   }
 
 const ChatInputTest: React.FC<ChatInputProps> = ({ newMessage, setNewMessage, handleSendMessage, conversaId: initialConversaId }) => {
@@ -44,7 +39,7 @@ const ChatInputTest: React.FC<ChatInputProps> = ({ newMessage, setNewMessage, ha
       return;
     }
 
-    const recognition = new (window as any).webkitSpeechRecognition();
+    const recognition = new window.webkitSpeechRecognition();
     recognition.lang = 'pt-BR';
     recognition.continuous = false;
     recognition.interimResults = false;
@@ -54,13 +49,13 @@ const ChatInputTest: React.FC<ChatInputProps> = ({ newMessage, setNewMessage, ha
       setIsRecording(true);
     };
 
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: SpeechRecognitionEvent ) => {
       const transcript = event.results[0][0].transcript;
       setNewMessage(transcript);
       sendMessageHandler();
     };
 
-    recognition.onerror = (event: any) => {
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error('Erro no reconhecimento de voz:', event.error);
     };
 

@@ -46,7 +46,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ newMessage, setNewMessage, handle
       return;
     }
 
-    const recognition = new (window as any).webkitSpeechRecognition();
+    const recognition = new window.webkitSpeechRecognition();
     recognition.lang = 'pt-BR';
     recognition.continuous = false;
     recognition.interimResults = false;
@@ -56,7 +56,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ newMessage, setNewMessage, handle
       setIsRecording(true);
     };
 
-    recognition.onresult = async (event: any) => {
+    recognition.onresult = async (event: SpeechRecognitionEvent) => {
       const transcript = event.results[0][0].transcript;
       
       handleSendMessage(conversaId, transcript, 'user');
@@ -73,14 +73,12 @@ const ChatInput: React.FC<ChatInputProps> = ({ newMessage, setNewMessage, handle
       }
     };
 
-    recognition.onerror = (event: any) => {
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error('Erro no reconhecimento de voz:', event.error);
     };
 
-    recognition.onend = (event: any) => {
+    recognition.onend = () => {
       setIsRecording(false);
-      // sendMessageHandler();
-      console.log('Fim do reconhecimento de voz');
     };
 
     recognition.start();

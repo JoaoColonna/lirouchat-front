@@ -1,6 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { sendMessage } from '../services/chatService';
+import { FaMicrophone } from 'react-icons/fa';
 
 interface ChatInputProps {
   newMessage: string;
@@ -12,6 +12,7 @@ interface ChatInputProps {
 const ChatInput: React.FC<ChatInputProps> = ({ newMessage, setNewMessage, handleSendMessage, conversaId: initialConversaId }) => {
   const [conversaId, setConversaId] = useState<number>(initialConversaId ?? 0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
 
   useEffect(() => {
     if (initialConversaId !== null) {
@@ -22,7 +23,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ newMessage, setNewMessage, handle
   const sendMessageHandler = async () => {
     if (newMessage.trim() === '') return;
 
-    // Adiciona a mensagem do usuário imediatamente
     handleSendMessage(conversaId, newMessage, 'user');
     setNewMessage('');
     setIsLoading(true);
@@ -32,14 +32,58 @@ const ChatInput: React.FC<ChatInputProps> = ({ newMessage, setNewMessage, handle
       if (conversaId === 0) {
         setConversaId(response.data.conversa_id);
       }
-      // Converte a resposta do bot de Markdown para HTML
-      // Adiciona a resposta do bot quando ela chegar
       handleSendMessage(response.data.conversa_id, response.data.resposta, 'model');
     } catch (error) {
       console.error('Failed to send message:', error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const startRecording = () => {
+    if (!('webkitSpeechRecognition' in window)) {
+      alert('Seu navegador não suporta a API de reconhecimento de voz.');
+      return;
+    }
+
+    const recognition = new (window as any).webkitSpeechRecognition();
+    recognition.lang = 'pt-BR';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      setIsRecording(true);
+    };
+
+    recognition.onresult = async (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      
+      handleSendMessage(conversaId, transcript, 'user');
+      try {
+        const response = await sendMessage(conversaId, transcript);
+        if (conversaId === 0) {
+          setConversaId(response.data.conversa_id);
+        }
+        handleSendMessage(response.data.conversa_id, response.data.resposta, 'model');
+      } catch (error) {
+        console.error('Failed to send message:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error('Erro no reconhecimento de voz:', event.error);
+    };
+
+    recognition.onend = (event: any) => {
+      setIsRecording(false);
+      // sendMessageHandler();
+      console.log('Fim do reconhecimento de voz');
+    };
+
+    recognition.start();
   };
 
   return (
@@ -66,6 +110,14 @@ const ChatInput: React.FC<ChatInputProps> = ({ newMessage, setNewMessage, handle
         disabled={isLoading}
       >
         {isLoading ? 'Enviando...' : 'Enviar'}
+      </button>
+      <button
+        id="record-button"
+        className={`ml-4 px-6 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 ${isRecording ? 'bg-red-700' : ''}`}
+        onClick={startRecording}
+        disabled={isRecording || isLoading}
+      >
+        <FaMicrophone className={isRecording ? 'animate-pulse' : ''} />
       </button>
     </div>
   );
